@@ -11,10 +11,12 @@ var jshint = require('gulp-jshint');
 var jshintStylish = require('jshint-stylish')
 var plumber = require('gulp-plumber');
 var beep = require('beepbeep');
+var watch = require('gulp-watch');
 
 gulp.task('js', function(){
     return gulp
-      .src(['**/*.js', '!bower_components/**', '!node_modules/**'])
+      //.src(['**/*.js', '!bower_components/**', '!phaser.min.js','!node_modules/**'])
+      .src(['public/**/*.js', '!public/phaser.min.js'])
       .pipe(plumber({
             errorHandler: function(e){
                   beep();
@@ -25,15 +27,20 @@ gulp.task('js', function(){
        .pipe(jshint({
                    asi: false
                }))
-       .pipe(jshint.reporter(jshintStylish));
+       .pipe(jshint.reporter(jshintStylish))
+       .pipe(connect.reload())
 });
 
+// without gulp-watch (but gulp-watch is cool because it only passes in changed files)
+// gulp.task('reload', function() {
+//         return gulp.src('index.html').pipe(connect.reload())
+// })
 
 var port = 2002; 
 gulp.task('connect', function() {
   console.log('server started')
   connect.server({
-    root: '.',
+    root: 'public',
     livereload: true,
     port: port
   });
@@ -44,5 +51,16 @@ gulp.task('launch', function(){
   open('http://localhost:' + port);
 }) 
 
+gulp.task('watch', function() {
+    console.log('watching...');
+    var logevent = function(event) {
+      console.log('File ' + event.path + ' was ' + event.type + ', running tasks...');
+    };
+    gulp.watch('public/**/*.js', ['js']).on('change', logevent);
+    //gulp.watch('public/**/*.html', ['reload']).on('change', logevent);
+    watch('public/**/*.html').pipe(connect.reload())
+    //gulp.watch('**/*.less', ['less']).on('change', logevent);
+});
 
-gulp.task('default', ['js', 'connect', 'launch']);
+
+gulp.task('default', ['js', 'connect', 'launch', 'watch']);
