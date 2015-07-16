@@ -4,8 +4,10 @@
         <meta charset="UTF-8" />
         <title>hello phaser!</title>
         
+<!-- 
+        <script src="//cdn.jsdelivr.net/phaser/2.2.2/phaser.min.js"></script>
+         -->
         <script src="phaser.min.js"></script>
-        
     </head>
     <body>
 
@@ -13,20 +15,49 @@
 
     window.onload = function() {
 
-        var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create });
+        var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 
-        function preload () {
+        function preload() {
 
-            game.load.image('logo', 'phaser.png');
-
-        }
-
-        function create () {
-
-            var logo = game.add.sprite(game.world.centerX, game.world.centerY, 'logo');
-            logo.anchor.setTo(0.5, 0.75);
+            game.load.image('sky', 'assets/sky.png');
+            game.load.image('ground', 'assets/platform.png');
+            game.load.image('star', 'assets/star.png');
+            game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
 
         }
+        var platforms;
+
+        function create() {
+            
+            //  We're going to be using physics, so enable the Arcade Physics system
+            game.physics.startSystem(Phaser.Physics.ARCADE);
+
+            game.add.sprite(0,0,'sky')
+
+            //  We will enable physics for any object that is created in this group
+            platforms = game.add.group()
+            platforms.enableBody = true
+
+            var ground = platforms.create(0, game.world.height - 60, 'ground')
+            //  Scale it to fit the width of the game (the original sprite is 400x32 in size)
+            ground.scale.setTo(2,2)
+            ground.body.immovable=true;
+            
+            var ledge = platforms.create(400,400,'ground')
+            ledge.body.immovable=true;
+
+            platforms.create(-150,250,'ground').body.immovable=true
+
+            
+            for (var i=0; i < 20; i++)
+            {
+                game.add.sprite(i*20,i*20, 'star')
+            }
+        }
+
+        function update() {
+        }
+
 
     };
 

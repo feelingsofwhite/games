@@ -13,10 +13,16 @@ var plumber = require('gulp-plumber');
 var beep = require('beepbeep');
 var watch = require('gulp-watch');
 
+gulp.task('lib', function(){
+    return gulp
+        .src('./bower_components/phaser/build/*.js')
+        .pipe(gulp.dest('public'))
+});
+
 gulp.task('js', function(){
     return gulp
       //.src(['**/*.js', '!bower_components/**', '!phaser.min.js','!node_modules/**'])
-      .src(['public/**/*.js', '!public/phaser.min.js'])
+      .src(['public/**/*.js', '!public/phaser.min.js', '!public/phaser.js'])
       .pipe(plumber({
             errorHandler: function(e){
                   beep();
