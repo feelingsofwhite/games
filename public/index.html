@@ -30,6 +30,9 @@
         var player
         var stars=[]
         var cursors
+        var score = 0
+        var scoreText
+
         function create() {
             
             //  We're going to be using physics, so enable the Arcade Physics system
@@ -75,18 +78,30 @@
                 star.body.gravity.y = (i%2===0 ? +1 : -1) * 10
                 star.body.gravity.x = (i%4===1 ? +1 : -1) * 10
                 star.body.collideWorldBounds = true;
+                star.body.bounce.y = 0.7 + Math.random() * 0.2
+                star.body.bounce.x = 0.2 + Math.random() * 0.2
             }
 
             cursors = game.input.keyboard.createCursorKeys()
+            scoreText = game.add.text(16,16,'score:0', {fontSize: '32px', fill: '#000'})
 
 
+        }
+
+        function collectStar (player, star) {
+            star.kill()
+            score += 10;
+            scoreText.text = "Score: " + score
         }
 
         function update() {
             game.physics.arcade.collide(player, platforms)
             for (var i = 0; i < stars.length; i++) {
                 game.physics.arcade.collide(stars[i], platforms)
-                game.physics.arcade.collide(stars[i], player)
+                for (var j = 0; j < stars.length; j++) {
+                    if (stars[i] !== stars[j])
+                    {game.physics.arcade.collide(stars[i], stars[j])}
+            }
             }
 
             //reset players velocity (movement)
@@ -125,6 +140,9 @@
             else
             {
             }
+
+
+            game.physics.arcade.overlap(player, stars, collectStar, null, this)
 
             // //  Allow the player to jump if they are touching the ground.
             // if (cursors.up.isDown && player.body.touching.down)
