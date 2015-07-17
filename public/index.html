@@ -27,6 +27,8 @@
         }
         var platforms;
 
+        var player
+        var stars=[]
         function create() {
             
             //  We're going to be using physics, so enable the Arcade Physics system
@@ -46,16 +48,40 @@
             var ledge = platforms.create(400,400,'ground')
             ledge.body.immovable=true;
 
-            platforms.create(-150,250,'ground').body.immovable=true
+            var ledge2 = platforms.create(-150,250,'ground')
+            ledge2.body.immovable=true
 
-            
-            for (var i=0; i < 20; i++)
+            player = game.add.sprite(32, game.world.height -150, 'dude')
+            //enable phaysics on player
+            game.physics.arcade.enable(player)
+
+            player.body.bounce.y = 0.2
+            player.body.gravity.y = 300;
+            player.body.collideWorldBounds = true;
+            player.animations.add('left', [0,1,2,3], 10, true)
+            player.animations.add('right', [5,6,7,8], 10, true)
+
+            for (var i=0; i < 30; i++)
             {
-                game.add.sprite(i*20,i*20, 'star')
+                var star = game.add.sprite(i*20,i*20, 'star')
+                stars.push(star)
+
+                game.physics.arcade.enable(star)
+                star.body.gravity.y = (i%2===0 ? +1 : -1) * 10
+                star.body.gravity.x = (i%4===1 ? +1 : -1) * 10
+                star.body.collideWorldBounds = true;
             }
+
+
         }
 
         function update() {
+            game.physics.arcade.collide(player, platforms)
+            for (var i = 0; i < stars.length; i++) {
+                game.physics.arcade.collide(stars[i], platforms)
+                game.physics.arcade.collide(stars[i], player)
+            }
+
         }
 
 
