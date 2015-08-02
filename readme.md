@@ -6,6 +6,7 @@
     cd {checkoutLocation}
     npm install
     bower install
+    gulp lib
     gulp  
 ````
 by default this starts a local server on port 2002 and launches browser at it.  watch for changes & livereload
