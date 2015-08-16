@@ -24,6 +24,7 @@
             game.load.image('star', 'assets/star.png');
             game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
             game.load.image('ship', 'assets/ship-up.png', 48, 48);
+            game.load.image('lazer', 'assets/lazer.png');
             game.load.audio('hi', ['assets/audio/hi.mp3', 'assets/audio/hi.ogg'])
             game.load.audio('bang', ['assets/audio/bang.mp3', 'assets/audio/bang.ogg'])
 
@@ -38,6 +39,7 @@
 
         var hi
         var bang
+        var lazers
 
         function create() {
             
@@ -65,6 +67,7 @@
             player = game.add.sprite(32, game.world.height -150, 'ship')
             //enable phaysics on player
             game.physics.arcade.enable(player)
+            player.anchor.set(0.5,0.5);
 
             //player.body.bounce.y = 0.2
             //player.body.gravity.y = 300;
@@ -82,11 +85,12 @@
                 stars.push(star)
 
                 game.physics.arcade.enable(star)
-                star.body.gravity.y = (i%2===0 ? +1 : -1) * 10
-                star.body.gravity.x = (i%4===1 ? +1 : -1) * 10
+                star.body.velocity.y = (i%2===0 ? +1 : -1) * 50
+                star.body.velocity.x = (i%4===1 ? +1 : -1) * 75
                 star.body.collideWorldBounds = true;
-                star.body.bounce.y = 0.7 + Math.random() * 0.2
-                star.body.bounce.x = 0.2 + Math.random() * 0.2
+                star.body.bounce.set(1.0)   ;
+                //??star.body.bounce.y = 0.7 + Math.random() * 0.2
+                //??star.body.bounce.x = 0.2 + Math.random() * 0.2
 //                 star.onKill.add(
 // function() {bang.play()}
 //                     )
@@ -98,6 +102,20 @@
             hi = game.add.audio('hi')
             bang = game.add.audio('bang')
 
+
+            lazers = game.add.group();
+            lazers.enableBody = true;
+            lazers.physicsBodyType = Phaser.Physics.ARCADE;
+
+            lazers.createMultiple(5, 'lazer');
+            lazers.setAll('checkWorldBounds', true);
+            lazers.setAll('outOfBoundsKill', true);
+            lazers.setAll('anchor.x', 0.5);
+            lazers.setAll('anchor.y', 0.5);
+
+            var key = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR); //see here: http://docs.phaser.io/Keyboard.js.html for the keycodes
+            key.onDown.add(shoot, this);
+
             //  Being mp3 files these take time to decode, so we can't play them instantly
             //  Using setDecodedCallback we can be notified when they're ALL ready for use.
             //  The audio files could decode in ANY order, we can never be sure which it'll be.
@@ -106,7 +124,13 @@
 
         }
 
-        function collectStar (player, star) {
+        function shoot(){
+            var lazer = lazers.getFirstDead()
+            lazer.reset(player.x, player.y)
+            lazer.body.velocity.y = -300;
+        }
+
+        function collectStar (star) {
             star.kill()
             bang.play()
             score += 10;
@@ -127,6 +151,8 @@
                     {game.physics.arcade.collide(stars[i], stars[j])}
             }
             }
+            game.physics.arcade.overlap(stars, lazers, collectStar, null, this);
+            game.physics.arcade.overlap(lazers, platforms, function (lazer) { lazer.kill()  }, null, this);
 
             //reset players velocity (movement)
             player.body.velocity.x = 0
@@ -197,7 +223,7 @@
             }
 
 
-            game.physics.arcade.overlap(player, stars, collectStar, null, this)
+            game.physics.arcade.overlap(stars, player, collectStar, null, this)
 
             // //  Allow the player to jump if they are touching the ground.
             // if (cursors.up.isDown && player.body.touching.down)
