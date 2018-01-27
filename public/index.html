@@ -79,6 +79,8 @@
                 player.frame = 4;
             }
             player.currentSpeed = 0;
+            game.world.setBounds(-200,-150,800+200+200,600+150+150);
+            game.camera.follow(player);
 
             for (var i=0; i < 25; i++)
             {
